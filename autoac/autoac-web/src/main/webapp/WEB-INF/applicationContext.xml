@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+			   			   http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd"
+       
+    default-lazy-init="true">
+    
+  <context:annotation-config/>
+
+  <aop:aspectj-autoproxy/>
+
+  <!-- Set base package for class path scanning to autoditect beans -->
+  <!--  <context:component-scan base-package="com.semika.autoac.persist.impl,com.semika.autoac.persist.impl,com.semika.autoac.service.api.internal,com.semika.autoac.service.impl.internal"/>-->
+
+  <bean id="autoacDS" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+       <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+       <property name="url" value="jdbc:mysql://localhost/autoac"/>
+       <property name="username" value="root"/>
+       <property name="password" value="abc123"/>
+  </bean>
+
+ <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+   <property name="dataSource" ref="autoacDS"/>
+   <property name="annotatedClasses">
+     <list>
+       <value>com.semika.autoac.model.User</value>
+       <value>com.semika.autoac.model.Company</value>
+     </list>
+   </property>
+   <property name="hibernateProperties">
+   			<value>
+   				hibernate.dialect=org.hibernate.dialect.MySQLDialect
+   				hibernate.id.new_generator_mappings=true
+   			</value>
+    </property>
+ </bean>
+ 
+ <!-- Platform transaction manage seting up -->
+ <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+ 		<property name="sessionFactory" ref="sessionFactory" />
+ </bean>
+ 
+ <!-- enable the configuration of transactional behavior based on annotations -->
+ <tx:annotation-driven transaction-manager="transactionManager"/>
+  
+ <!-- set the transactional advice -->
+ <tx:advice id="txAdvice" transaction-manager="transactionManager">
+ 	 <tx:attributes>
+		 	<!-- all methods starting with 'get' are read-only -->
+		    <tx:method name="get*" read-only="true"/>
+		    <!-- all methods starting with 'find' are read only -->
+		    <tx:method name="find*" read-only="true"/>
+		    <!-- other methods use the default transaction settings (see below) -->
+		    <tx:method name="*"/>
+ 	 </tx:attributes>
+ </tx:advice>
+  
+ <!-- execution scope for the transactional advice -->
+ <aop:config>
+  	<aop:pointcut id="autoacServiceOperation" expression="execution(* com.semika.autoac.service..*.*(..))"/>
+  	<aop:advisor advice-ref="txAdvice" pointcut-ref="autoacServiceOperation"/>
+ </aop:config>
+  
+ 
+ <import resource="applicationContext-persist.xml"/> 
+ <import resource="applicationContext-service.xml"/>
+
+</beans>

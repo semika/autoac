@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN" "http://struts.apache.org/dtds/struts-2.0.dtd" >
+<struts>
+
+	<constant name="struts.devMode" value="true" />
+	
+	
+	<package name="autoac" extends="struts-default json-default" namespace="/secure">
+		<interceptors>
+			<interceptor name="exceptionFlowInterceptor" 
+						 class="com.semika.autoac.web.interceptors.ExceptionFlowInterceptor"></interceptor>
+			<interceptor-stack name="autoac-stack">
+				<interceptor-ref name="exceptionFlowInterceptor"></interceptor-ref>
+				<interceptor-ref name="defaultStack"></interceptor-ref>
+			</interceptor-stack>
+		</interceptors>
+		<default-interceptor-ref name="autoac-stack"></default-interceptor-ref>
+	</package>
+	
+	
+</struts>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="maven-antrun-" default="main"  >
+<target name="main">
+  <delete file="/home/semika/apache-tomcat-7.0.37/webapps/autoac-web.war" failonerror="false"/>
+  <delete dir="/home/semika/apache-tomcat-7.0.37/webapps/autoac-web" failonerror="false"/>
+  <copy todir="/home/semika/apache-tomcat-7.0.37/webapps" file="/home/semika/workspace-autoac/autoac/autoac-web/target/autoac-web.war"/>
+</target>
+</project>
